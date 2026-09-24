@@ -1,0 +1,10 @@
+{
+  "trusted_networks": ["10.42.0.0/16", "10.8.0.0/24"],
+  "learn_days": 7,
+  "admin_windows": [{"days": [0, 1, 2, 3, 4], "start_hour": 8, "end_hour": 19}],
+  "admin_utc_offset_hours": 5,
+  "spike_factor": 3,
+  "spike_min": 50,
+  "bulk_new_paths": 5,
+  "denials": 10
+}

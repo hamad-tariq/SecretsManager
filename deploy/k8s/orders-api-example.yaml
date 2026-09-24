@@ -1,0 +1,147 @@
+# Example: the orders-api service gets its secrets from the secrets cluster.
+#
+# One-time setup on the secrets side (admin certificate):
+#   kubectl -n sm-system get secret sm-reviewer-token -o jsonpath='{.data.token}' | base64 -d > reviewer.token
+#   smctl auth kubernetes -host https://<k8s-api>:6443 -ca-file k8s-ca.crt \
+#         -reviewer-token-file reviewer.token -audience sm -role shop/orders=orders-api
+#   smctl policy write orders orders-policy.json      # e.g. read on kv/prod/orders/*
+#   smctl identity bind svc/orders-api orders
+#
+# The pod then proves who it is with a projected service-account token
+# (audience "sm"), gets a 24 h certificate for spiffe://sm/svc/orders-api,
+# and finds its secrets as files in /run/secrets/sm (memory-backed, never on disk).
+---
+# Reviewer identity the secrets cluster uses to call TokenReview.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sm-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sm-reviewer
+  namespace: sm-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: sm-reviewer-tokenreview
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator   # allows creating TokenReviews, nothing else relevant
+subjects:
+  - kind: ServiceAccount
+    name: sm-reviewer
+    namespace: sm-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sm-reviewer-token
+  namespace: sm-system
+  annotations:
+    kubernetes.io/service-account.name: sm-reviewer
+type: kubernetes.io/service-account-token
+---
+# The application.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: orders
+  namespace: shop
+automountServiceAccountToken: false   # the pod only gets the audience-bound token below
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sm-ca
+  namespace: shop
+data:
+  ca.crt: |
+    -----BEGIN CERTIFICATE-----
+    (contents of ca/root.pem)
+    -----END CERTIFICATE-----
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-api
+  namespace: shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: orders-api }
+  template:
+    metadata:
+      labels: { app: orders-api }
+    spec:
+      serviceAccountName: orders
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001        # agent and app share a UID, so the 0600 files are readable by both
+        runAsGroup: 10001
+        seccompProfile: { type: RuntimeDefault }
+      volumes:
+        - name: sm-secrets
+          emptyDir: { medium: Memory, sizeLimit: 1Mi }
+        - name: sm-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: sm
+                  expirationSeconds: 3600
+                  path: token
+        - name: sm-ca
+          configMap: { name: sm-ca }
+      initContainers:
+        # Writes certificate and secrets before the app starts, then exits.
+        - name: sm-agent-init
+          image: registry.internal/sm-agent:0.1.0
+          args: &agentArgs
+            - -addr=sm-1.sm.internal:8200,sm-2.sm.internal:8200,sm-3.sm.internal:8200
+            - -ca=/etc/sm/ca.crt
+            - -out=/run/secrets/sm
+            - -auth=kubernetes
+            - -jwt-file=/var/run/secrets/sm/token
+            - -secret=prod/orders/db=db-password
+            - -once
+          volumeMounts: &agentMounts
+            - { name: sm-secrets, mountPath: /run/secrets/sm }
+            - { name: sm-token, mountPath: /var/run/secrets/sm, readOnly: true }
+            - { name: sm-ca, mountPath: /etc/sm, readOnly: true }
+          securityContext: &locked
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 32Mi }
+      containers:
+        # Keeps the certificate renewed and secrets current.
+        - name: sm-agent
+          image: registry.internal/sm-agent:0.1.0
+          args:
+            - -addr=sm-1.sm.internal:8200,sm-2.sm.internal:8200,sm-3.sm.internal:8200
+            - -ca=/etc/sm/ca.crt
+            - -out=/run/secrets/sm
+            - -auth=kubernetes
+            - -jwt-file=/var/run/secrets/sm/token
+            - -secret=prod/orders/db=db-password
+            - -refresh=5m
+          volumeMounts: *agentMounts
+          securityContext: *locked
+          resources:
+            requests: { cpu: 10m, memory: 16Mi }
+            limits: { memory: 32Mi }
+        - name: app
+          image: registry.internal/orders-api:1.0.0
+          env:
+            # Either read /run/secrets/sm/db-password directly, or use the SDK:
+            #   Client.from_agent_dir(os.environ["SM_ADDR"].split(","), os.environ["SM_AGENT_DIR"])
+            - { name: SM_ADDR, value: "sm-1.sm.internal:8200,sm-2.sm.internal:8200,sm-3.sm.internal:8200" }
+            - { name: SM_AGENT_DIR, value: /run/secrets/sm }
+          volumeMounts:
+            - { name: sm-secrets, mountPath: /run/secrets/sm, readOnly: true }
+          securityContext: *locked

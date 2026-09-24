@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/hamad-tariq/SecretsManager/security/advisories/new
+    about: Please report vulnerabilities privately, never in a public issue. See SECURITY.md (or email hammadt451@gmail.com).
+  - name: 💬 Questions and ideas
+    url: https://github.com/hamad-tariq/SecretsManager/discussions
+    about: Ask how to do something, share how you use it, or float an idea before opening an issue.

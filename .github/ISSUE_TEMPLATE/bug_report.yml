@@ -1,0 +1,57 @@
+name: 🐛 Bug report
+description: Something doesn't work as documented.
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time! **Security problems don't belong here**: see SECURITY.md.
+        Never paste secret values, unseal shares, private keys or tokens into an issue.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands or code, ideally starting from `scripts/try-local.sh`.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or output
+      description: smd / smctl / sm-agent output. Redact addresses and identities if you need to.
+      render: text
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      multiple: true
+      options:
+        - smd (server / cluster)
+        - smctl (CLI)
+        - sm-agent
+        - Python SDK (smclient)
+        - Sentinel
+        - Rotation / dynamic database credentials
+        - Docs
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `smd -version` / `smctl -version`, or the commit.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Go version, Kubernetes version if relevant, database versions if relevant.

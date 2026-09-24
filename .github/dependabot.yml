@@ -1,0 +1,20 @@
+# Weekly update pull requests. Every one runs through CI (including
+# govulncheck) and gets reviewed like any other change: for a secrets manager,
+# a dependency update is a security-relevant change.
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      go-minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: gomod
+    directory: /tools
+    schedule:
+      interval: monthly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

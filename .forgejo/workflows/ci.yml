@@ -1,0 +1,16 @@
+# Runs on a self-hosted Forgejo Actions runner.
+# Mirror golang:1.27 into your own registry and point `image` at it (the
+# image needs python3 >= 3.11 for the SDK and Sentinel tests; add it to your
+# mirrored image if it's missing),
+# and set the runner's DEFAULT_ACTIONS_URL to your Forgejo instance so
+# actions/checkout is served locally.
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: docker
+    container:
+      image: golang:1.27
+    steps:
+      - uses: actions/checkout@v4
+      - run: RACE=1 sh scripts/check.sh

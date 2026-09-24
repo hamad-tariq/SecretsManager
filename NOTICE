@@ -1,0 +1,15 @@
+Secrets Manager
+Copyright 2026 Hammad Tariq (https://thehammadtariq.com)
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE),
+except for the file below.
+
+internal/crypto/shamir/shamir.go
+  Ported from OpenBao (https://github.com/openbao/openbao,
+  sdk/v2/helper/shamir, v2.7.0). Copyright (c) HashiCorp, Inc. Licensed under
+  the Mozilla Public License, Version 2.0 (https://mozilla.org/MPL/2.0/).
+  This file, including our modifications to it, remains under MPL-2.0.
+
+Compiled binaries also include third-party Go modules under their own
+licenses (BSD-3-Clause, MIT, Apache-2.0 and MPL-2.0). They are listed, with
+where to get their source, in THIRD_PARTY_NOTICES.md.

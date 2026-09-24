@@ -1,0 +1,31 @@
+name: ✨ Feature request
+description: Suggest an improvement or a new capability.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The project deliberately stays small and self-contained (no third-party services).
+        Explaining the problem you're solving helps more than a proposed solution alone.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you like to work on it?
+      options:
+        - "Yes, I'd like to open a pull request"
+        - "Maybe, with some guidance"
+        - "No"

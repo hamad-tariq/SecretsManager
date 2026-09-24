@@ -1,0 +1,157 @@
+site_name: Secrets Manager
+site_description: A self-hosted secrets vault with Shamir unseal, certificate identities, rotation, dynamic database credentials and a tamper-evident audit log. No third-party services.
+site_author: Hammad Tariq
+site_url: https://hamad-tariq.github.io/SecretsManager/
+repo_url: https://github.com/hamad-tariq/SecretsManager
+repo_name: hamad-tariq/SecretsManager
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Hammad Tariq &middot; Apache-2.0 &middot; Experimental, not independently audited
+
+theme:
+  name: material
+  font: false            # system fonts: no request to a font CDN
+  icon:
+    logo: material/shield-lock
+    repo: fontawesome/brands/github
+  favicon: assets/favicon.svg
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle: { icon: material/brightness-auto, name: Switch to light mode }
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle: { icon: material/brightness-7, name: Switch to dark mode }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle: { icon: material/brightness-4, name: Switch to system preference }
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - navigation.tracking
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - announce.dismiss
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/hamad-tariq/SecretsManager
+    - icon: material/web
+      link: https://thehammadtariq.com
+  generator: false
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Quick start: getting-started/quickstart.md
+      - Your first application: getting-started/first-app.md
+  - Concepts:
+      - concepts/index.md
+      - Architecture: concepts/architecture.md
+      - Encryption and sealing: concepts/encryption-and-sealing.md
+      - Identities and PKI: concepts/identities.md
+      - Policies: concepts/policies.md
+      - Secrets and versions: concepts/secrets.md
+      - Clustering: concepts/clustering.md
+      - Audit log: concepts/audit.md
+  - Components:
+      - components/index.md
+      - smd (server): components/smd.md
+      - smctl (CLI): components/smctl.md
+      - sm-agent: components/sm-agent.md
+      - Python SDK: components/python-sdk.md
+      - Sentinel: components/sentinel.md
+  - How-to guides:
+      - guides/index.md
+      - Deploy a production cluster: guides/deploy-cluster.md
+      - Onboard a service (VM or Docker): guides/onboard-service.md
+      - Kubernetes: guides/kubernetes.md
+      - Other languages: guides/other-languages.md
+      - Rotate secrets: guides/rotation.md
+      - Dynamic database credentials: guides/dynamic-credentials.md
+      - Audit forwarding and alerts: guides/audit-forwarding.md
+      - Monitoring: guides/monitoring.md
+      - Backups and restore: guides/backups.md
+      - Shares, rekey and root admin: guides/key-ceremonies.md
+      - Revoke access: guides/revocation.md
+      - Build and verify releases: guides/releases.md
+  - Reference:
+      - reference/index.md
+      - HTTP API: reference/http-api.md
+      - Configuration: reference/configuration.md
+      - Policy language: reference/policy-language.md
+      - Metrics: reference/metrics.md
+      - Audit record format: reference/audit-format.md
+      - Defaults and limits: reference/defaults.md
+  - Operations:
+      - Production checklist: production-checklist.md
+      - Runbooks:
+          - runbooks/README.md
+          - Unseal after a restart: runbooks/unseal-after-restart.md
+          - Lost node: runbooks/lost-node.md
+          - Lost quorum: runbooks/lost-quorum.md
+          - Restore from backup: runbooks/restore-from-backup.md
+          - Compromised service certificate: runbooks/compromised-service-cert.md
+          - Compromised share holder: runbooks/compromised-share-holder.md
+          - Rolling upgrade: runbooks/rolling-upgrade.md
+      - Threat model: threat-model.md
+  - Project:
+      - project/index.md
+      - FAQ: project/faq.md
+      - Contributing: project/contributing.md
+      - Security policy: project/security.md
+      - License and notices: project/license.md

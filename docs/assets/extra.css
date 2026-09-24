@@ -1,0 +1,19 @@
+/* Home page hero and card grid. */
+.sm-hero {
+  text-align: center;
+  padding: 1.5rem 0 0.5rem;
+}
+.sm-hero h1 {
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+.sm-hero p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+}
+.md-typeset .sm-hero .md-button {
+  margin: 0.3rem;
+}
+.md-typeset table:not([class]) {
+  font-size: 0.72rem;
+}

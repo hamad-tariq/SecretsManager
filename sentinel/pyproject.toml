@@ -1,0 +1,15 @@
+[project]
+name = "sentinel"
+version = "0.1.0"
+description = "Anomaly alerts from the secrets manager's audit log (standard library only)"
+requires-python = ">=3.11"
+dependencies = []
+license = {text = "Apache-2.0"}
+authors = [{name = "Hammad Tariq", email = "hammadt451@gmail.com"}]
+
+[project.scripts]
+sentinel = "sentinel.__main__:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

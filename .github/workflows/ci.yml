@@ -1,0 +1,62 @@
+# Every quality gate on GitHub's runners: the same scripts/check.sh you run
+# locally (gofmt, vet, staticcheck, gosec, govulncheck, Go tests with the race
+# detector, Python SDK and Sentinel tests). .forgejo/workflows/ci.yml is the
+# equivalent for a self-hosted Forgejo runner.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: |
+            go.sum
+            tools/go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Quality gates
+        run: RACE=1 sh scripts/check.sh
+
+  # Real-database tests for rotation and dynamic credentials.
+  databases:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: pw
+          POSTGRES_DB: app
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 2s --health-timeout 5s --health-retries 20
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: pw
+        ports: ["3306:3306"]
+        options: --health-cmd "mysqladmin ping -ppw" --health-interval 2s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Rotation and lease tests against PostgreSQL and MySQL
+        env:
+          SM_TEST_POSTGRES: postgres://postgres:pw@localhost:5432/app?sslmode=disable
+          SM_TEST_MYSQL: root:pw@tcp(localhost:3306)/
+        run: go test -count=1 ./internal/rotation/ ./internal/lease/
