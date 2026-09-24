@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: |
             go.sum
             tools/go.sum
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Quality gates
